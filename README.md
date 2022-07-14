@@ -1,4 +1,4 @@
-# iscsiscsicpl autoelevate DLL Search Order hijacking UAC Bypass 0day
+# iscsicpl autoelevate DLL Search Order hijacking UAC Bypass 0day
 
 The iscsicpl.exe binary is vulnerable to a DLL Search Order hijacking
 vulnerability when running 32bit Microsoft binary on a 64bit host via

@@ -10,9 +10,6 @@
 * Windows 11 Enterprise x64 (Version 10.0.22000.739).
 * Windows 8.1 Professional x64 (Version 6.3.9600).
 *
-* TODO: fix the .resource compiler NDEBUG / _DEBUG preprocessor directive
-* to fix batch building.
-*
 * -- Hacker Fantastic
 * https://hacker.house
 */
@@ -105,7 +102,7 @@ int main(int argc, char* argv[])
 	SHELLEXECUTEINFO shinfo;
 	// handle user argument for command
 	if (argc != 2) {
-		// argument is passed directly to WinExec() so should be properly escaped.
+		// argument is passed directly to WinExec() via DLL
 		printf("[!] Error, you must supply a command e.g. c:\\windows\\system32\\cmd.exe\n");
 		return EXIT_FAILURE;
 	}

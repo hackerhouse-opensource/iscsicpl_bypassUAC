@@ -50,7 +50,11 @@ END
 // DLL
 //
 
+#ifdef _DEBUG
+IDR_DLLPROXY            DLL                     "..\\Debug\\iscsiexe.dll"
+#elif _NDEBUG
 IDR_DLLPROXY            DLL                     "..\\Release\\iscsiexe.dll"
+#endif
 
 IDR_DLLORIG             DLL                     "iscsiexe_org.dll"
 

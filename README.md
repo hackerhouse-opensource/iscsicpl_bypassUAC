@@ -9,3 +9,5 @@ has been tested against the following versions of Windows desktop:
 
 * Windows 11 Enterprise x64 (Version 10.0.22000.739).  
 * Windows 8.1 Professional x64 (Version 6.3.9600).
+
+These files are available under a Attribution-NonCommercial-NoDerivatives 4.0 International license.
